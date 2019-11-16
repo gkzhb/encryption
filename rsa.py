@@ -83,7 +83,7 @@ def getPrime(length):
         flag = testPrimeRound(x)
     return x
 
-def generateKeys(length):
+def generateKeys(length=128):
     '''
     生成公钥和私钥
     '''

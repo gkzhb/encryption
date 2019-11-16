@@ -47,6 +47,19 @@ function getJson(type, url, data, callback) {
     });
 }
 
+function getRSAKeys() {
+	getJson("GET", "/rsa", '', renderRSA);
+}
+
+function renderRSA(response) {
+	n = response['n'];
+	pub = response['pub'];
+	key = response['key'];
+	nText.val(n.toString());
+	pubText.val(pub.toString());
+	keyText.val(key.toString());
+}
+
 function renderResult(response) {
 	var str;
 	spinner.hide();
@@ -56,9 +69,11 @@ function renderResult(response) {
 		} else {
 			str = "加密";
 		}
-		toastText.text(str + "完成！");
-		toast.toast('show');
+		modalText.text(str + "完成！");
+		modal.modal('show');
 		result.val(response['result']);
+		rsaEncText.val(response['rsa_enc']);
+		rsaDecText.val(response['rsa_dec']);
 	} else {
 		error.text(response['result']);
 		error.show();
@@ -68,9 +83,10 @@ function renderResult(response) {
     // result.attr("rows", length);
 }
 
+
 function getData() {
 	spinner.show();
-	toast.toast('hide');
+	modal.modal('hide');
 	error.hide();
     var mode = parseInt($("input[name=mode]:checked").val());
     var ciphertext = parseText($("#ciphertextInput").val());
@@ -78,7 +94,10 @@ function getData() {
 	data = { 
 		mode: mode,
 		ciphertext: ciphertext,
-		iv: iv
+		iv: iv,
+		n: n,
+		pub: pub,
+		key: key
 	}
 	flag = true;
 	if (ciphertext.length != 64) {
@@ -107,16 +126,27 @@ var cipherInput = $("#ciphertextInput");
 var ivInput = $("#iv");
 var result = $("#result");
 var fileObj = $("#file");
-var toast = $(".toast");
-var toastText = toast.children(".toast-body");
+var modal = $(".modal");
+var modalText = $(".modal-body");
 var spinner = $("#spinner");
 var error = $("#error");
 var invalidCipher = $("#invalid-cipher");
 var invalidIv = $("#invalid-iv");
 var validStr = "请输入64位二进制内容，目前有效位数为";
-var data;
+
+var nText = $("#n");
+var pubText = $("#pub");
+var keyText = $("#key");
+var rsaEncText = $("#rsaEncText");
+var rsaDecText = $("#rsaDecText");
+
+var data; // 用于和服务器交互的对象
 var flag;
 
+var n, pub, key;  // RSA 信息
+var rsaEnc, rsaDec;
+
 $(document).ready(function () {
-	  bsCustomFileInput.init()
+	bsCustomFileInput.init();
+	getRSAKeys();
 })
